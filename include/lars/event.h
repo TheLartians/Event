@@ -99,9 +99,12 @@ namespace lars{
     }
 
     Event(const Event &) = delete;
-    Event(Event &&) = default;
+    Event(Event &&other):Event(){ *this = std::move(other); }
     Event &operator=(const Event &) = delete;
-    Event &operator=(Event &&) = default;
+    Event &operator=(Event &&other){
+      std::swap(data, other.data);
+      return *this;
+    }
 
 
     void emit(Args ... args) const {
