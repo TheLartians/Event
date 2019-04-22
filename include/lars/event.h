@@ -49,35 +49,29 @@ namespace lars{
     };
 
     using HandlerList = std::vector<StoredHandler>;
-    using EventPointer = std::shared_ptr<const Event *>;
-    using WeakEventPointer = std::weak_ptr<const Event *>;
     
-    mutable HandlerID IDCounter = 0;
-    mutable HandlerList observers;
-    mutable std::mutex observerMutex;
-    EventPointer self;
+    struct Data {
+      HandlerID IDCounter = 0;
+      HandlerList observers;
+      std::mutex observerMutex;
+    };
+
+    std::shared_ptr<Data> data;
 
     HandlerID addHandler(Handler h)const{
-      std::lock_guard<std::mutex> lock(observerMutex);
-      observers.emplace_back(StoredHandler{IDCounter,h});
-      return IDCounter++;
+      std::lock_guard<std::mutex> lock(data->observerMutex);
+      data->observers.emplace_back(StoredHandler{data->IDCounter,h});
+      return data->IDCounter++;
     }
-    
-    void eraseHandler(const HandlerID &id)const{
-      std::lock_guard<std::mutex> lock(observerMutex);
-      auto it = std::find_if(observers.begin(), observers.end(), [&](auto &o){ return o.id == id; });
-      if (it != observers.end()) { observers.erase(it); }
-    }
-    
+        
   public:
     
     struct Observer:public lars::Observer::Base{
-      WeakEventPointer parent;
+      std::weak_ptr<Data> data;
       HandlerID id;
       
       Observer(){}
-      Observer(const EventPointer & _parent, HandlerID _id):parent(_parent), id(_id){
-      }
+      Observer(const std::weak_ptr<Data> &_data, HandlerID _id):data(_data), id(_id){}
       
       Observer(Observer &&other) = default;
       Observer(const Observer &other) = delete;
@@ -90,46 +84,31 @@ namespace lars{
       }
 
       void reset(){
-        if(auto p = parent.lock()){ 
-          (*p)->eraseHandler(id); 
+        if(auto d = data.lock()){ 
+          std::lock_guard<std::mutex> lock(d->observerMutex);
+          auto it = std::find_if(d->observers.begin(), d->observers.end(), [&](auto &o){ return o.id == id; });
+          if (it != d->observers.end()) { d->observers.erase(it); }
         }
-        parent.reset();
+        data.reset();
       }
       
       ~Observer(){ reset(); }
     };
     
-    Event():self(std::make_shared<const Event *>(this)){
-      
+    Event():data(std::make_shared<Data>()){
     }
-    
-    Event(const Event &) = delete;
-
-    Event(Event &&other){
-      *this = std::move(other);
-    }
-    
-    Event & operator=(const Event &) = delete;
-
-    Event & operator=(Event &&other){
-      self = std::move(other.self);
-      *self = this;
-      observers = std::move(other.observers);
-      IDCounter = other.IDCounter;
-      return *this;
-    }
-    
+   
     void emit(Args ... args) const {
-      observerMutex.lock();
-      auto tmpObservers = observers;
-      observerMutex.unlock();
+      data->observerMutex.lock();
+      auto tmpObservers = data->observers;
+      data->observerMutex.unlock();
       for(auto &observer: tmpObservers){
         observer.callback(args...);
       }
     }
     
     Observer createObserver(const Handler &h)const{
-      return Observer(self, addHandler(h));
+      return Observer(data, addHandler(h));
     }
     
     void connect(const Handler &h)const{
@@ -137,13 +116,13 @@ namespace lars{
     }
     
     void clearObservers(){
-      std::lock_guard<std::mutex> lock(observerMutex);
-      observers.clear();
+      std::lock_guard<std::mutex> lock(data->observerMutex);
+      data->observers.clear();
     }
     
     size_t observerCount() const {
-      std::lock_guard<std::mutex> lock(observerMutex);
-      return observers.size();
+      std::lock_guard<std::mutex> lock(data->observerMutex);
+      return data->observers.size();
     }
 
   };
