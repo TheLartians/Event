@@ -80,6 +80,7 @@ namespace lars{
       Observer & operator=(Observer &&other)=default;
       
       void observe(const Event &event, const Handler &handler){
+        reset();
         *this = event.createObserver(handler);
       }
 
@@ -105,7 +106,6 @@ namespace lars{
       std::swap(data, other.data);
       return *this;
     }
-
 
     void emit(Args ... args) const {
       data->observerMutex.lock();
