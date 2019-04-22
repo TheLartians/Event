@@ -31,7 +31,7 @@ a.set(3); // -> The result changed to 5
 
 # Installation and usage
 
-With [CPM](https://github.com/TheLartians/CPM), lars::Event can be added to your project by adding the following to your projects' `CMakeLists.txt`.
+With [CPM](https://github.com/TheLartians/CPM), lars::Event can be used in a CMake project simply by adding the following to the project's `CMakeLists.txt`.
 
 ```cmake
 CPMAddPackage(
@@ -43,4 +43,4 @@ CPMAddPackage(
 target_link_libraries(myProject LarsEvent)
 ```
 
-Alternatively, download the repository include it via `add_subdirectory`. Installing lars::Event will make it findable in CMake's `find_package`.
+Alternatively, the repository can be cloned locally and included it via `add_subdirectory`. Installing lars::Event will make it findable in CMake's `find_package`.
