@@ -97,7 +97,13 @@ namespace lars{
     
     Event():data(std::make_shared<Data>()){
     }
-   
+
+    Event(const Event &) = delete;
+    Event(Event &&) = default;
+    Event &operator=(const Event &) = delete;
+    Event &operator=(Event &&) = default;
+
+
     void emit(Args ... args) const {
       data->observerMutex.lock();
       auto tmpObservers = data->observers;
