@@ -91,7 +91,7 @@ namespace lars{
 
       void reset(){
         if(auto p = parent.lock()){ 
-          (*param_type)->eraseHandler(id); 
+          (*p)->eraseHandler(id); 
         }
         parent.reset();
       }
