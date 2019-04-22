@@ -90,8 +90,8 @@ namespace lars{
       }
 
       void reset(){
-        if(!parent.expired()){ 
-          (*parent.lock())->eraseHandler(id); 
+        if(auto p = parent.lock()){ 
+          (*param_type)->eraseHandler(id); 
         }
         parent.reset();
       }
