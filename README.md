@@ -36,7 +36,7 @@ With [CPM](https://github.com/TheLartians/CPM), lars::Event can be added to your
 ```cmake
 CPMAddPackage(
   NAME LarsEvent
-  VERSION 2.0.1
+  VERSION 2.0.2
   GIT_REPOSITORY https://github.com/TheLartians/Event.git
 )
 
