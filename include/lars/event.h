@@ -5,6 +5,7 @@
 #include <vector>
 #include <utility>
 #include <mutex>
+#include <algorithm>
 
 namespace lars{
   
@@ -45,7 +46,7 @@ namespace lars{
 
     struct StoredHandler {
       HandlerID id;
-      Handler callback;
+      std::shared_ptr<Handler> callback;
     };
 
     using HandlerList = std::vector<StoredHandler>;
@@ -60,7 +61,7 @@ namespace lars{
 
     HandlerID addHandler(Handler h)const{
       std::lock_guard<std::mutex> lock(data->observerMutex);
-      data->observers.emplace_back(StoredHandler{data->IDCounter,h});
+      data->observers.emplace_back(StoredHandler{data->IDCounter,std::make_shared<Handler>(h)});
       return data->IDCounter++;
     }
         
@@ -108,11 +109,17 @@ namespace lars{
     }
 
     void emit(Args ... args) const {
+      std::vector<std::weak_ptr<Handler>> handlers;
+      handlers.resize(data->observers.size());
       data->observerMutex.lock();
-      auto tmpObservers = data->observers;
+      std::transform(data->observers.begin(), data->observers.end(), handlers.begin(), [](auto &h){
+        return h.callback;
+      });
       data->observerMutex.unlock();
-      for(auto &observer: tmpObservers){
-        observer.callback(args...);
+      for(auto &weakCallback: handlers){
+        if(auto callback = weakCallback.lock()){
+          (*callback)(args...);
+        }
       }
     }
     

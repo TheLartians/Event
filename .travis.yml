@@ -64,13 +64,8 @@ after_success:
   - cmake -H. -Bbuild/coverage -DCMAKE_BUILD_TYPE=Debug -DLARS_EVENT_ENABLE_TESTS=On -DENABLE_TEST_COVERAGE=On -DCMAKE_CXX_COMPILER=g++-8
   - cmake --build build/coverage
   - cmake --build build/coverage --target test
-  # collect coverage data
-  - lcov --gcov-tool $(which gcov-8) --directory . --capture --output-file coverage.info
-  # remove lib files
-  - lcov --gcov-tool $(which gcov-8) --remove coverage.info '/usr/*' "${HOME}"'/.cache/*' --output-file coverage.info
-  # remove test files
-  - lcov --gcov-tool $(which gcov-8) --remove coverage.info $(pwd)/tests/*.cpp  --output-file coverage.info
-  # print coverage info
+  # create coverage report
+  - lcov --gcov-tool $(which gcov-8) --directory . --capture --no-external --exclude "*tests*" --exclude "*_deps*" --quiet --output-file coverage.info
+  # output coverage
   - lcov --gcov-tool $(which gcov-8) --list coverage.info
-  # upload coverage data
   - bash <(curl -s https://codecov.io/bash) -f coverage.info || echo "Codecov did not collect coverage reports"

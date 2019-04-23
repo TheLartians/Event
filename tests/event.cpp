@@ -59,11 +59,21 @@ TEST_CASE("Event"){
     lars::Event<> event;
     lars::Event<>::Observer observer;
     unsigned count = 0;
-    observer = event.createObserver([&](){ observer.reset(); count++; });
-    event.emit();
-    REQUIRE(count == 1);
-    event.emit();
-    REQUIRE(count == 1);
+    SECTION("self removing"){
+      observer = event.createObserver([&](){ observer.reset(); count++; });
+      event.emit();
+      REQUIRE(count == 1);
+      event.emit();
+      REQUIRE(count == 1);
+    }
+    SECTION("other removing"){
+      event.connect([&](){ observer.reset(); });
+      observer = event.createObserver([&](){ count++; });
+      event.emit();
+      REQUIRE(count == 0);
+      event.emit();
+      REQUIRE(count == 0);
+    }
   }
 
   SECTION("adding observers during emit"){

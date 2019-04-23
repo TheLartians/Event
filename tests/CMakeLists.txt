@@ -31,6 +31,7 @@ set_target_properties(lars-event-tests PROPERTIES CXX_STANDARD 17 COMPILE_FLAGS 
 
 ENABLE_TESTING() 
 ADD_TEST(lars-event-tests lars-event-tests)
+
 # ---- code coverage ----
 
 if (${ENABLE_TEST_COVERAGE})
