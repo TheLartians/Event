@@ -1,3 +1,4 @@
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/2db87434675a4e2d8d1e5f10cd5d2387)](https://app.codacy.com/app/TheLartians/Event?utm_source=github.com&utm_medium=referral&utm_content=TheLartians/Event&utm_campaign=Badge_Grade_Dashboard)
 [![Build Status](https://travis-ci.com/TheLartians/Event.svg?branch=master)](https://travis-ci.com/TheLartians/Event)
 [![codecov](https://codecov.io/gh/TheLartians/Event/branch/master/graph/badge.svg)](https://codecov.io/gh/TheLartians/Event)
 
