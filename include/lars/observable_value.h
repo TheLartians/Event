@@ -7,6 +7,15 @@
 
 namespace lars {
 
+  namespace observable_value_detail {
+    // source: https://stackoverflow.com/questions/6534041/how-to-check-whether-operator-exists
+    struct No {}; 
+    template<typename T, typename Arg> No operator== (const T&, const Arg&);
+    template<typename T, typename Arg = T> struct HasEqual {
+      enum { value = !std::is_same<decltype(*(T*)(0) == *(Arg*)(0)), No>::value };
+    };  
+  }
+
   template <class T> class ObservableValue {
   protected:
     T value;
@@ -21,9 +30,17 @@ namespace lars {
     ObservableValue(ObservableValue &&) = delete;
     ObservableValue &operator=(ObservableValue &&) = delete;
 
-    template <typename ... Args> void set(Args ... args){ 
-      value = T(std::forward<Args>(args)...);
-      onChange.emit(value);
+    template <typename ... Args> void set(Args && ... args){ 
+      if constexpr (observable_value_detail::HasEqual<T>::value) {
+        T newValue(std::forward<Args>(args)...);
+        if (value != newValue) {
+          value = std::move(newValue);
+          onChange.emit(value);
+        }
+      } else {
+          value = T(std::forward<Args>(args)...);
+          onChange.emit(value);
+      }
     }
 
     template <typename ... Args> void setSilently(Args ... args){ 
