@@ -7,7 +7,7 @@ using namespace lars;
 // instantiate template for coverage
 template class lars::Event<>;
 
-TEST_CASE("Event"){
+TEST_CASE("Event", "[event]"){
 
   SECTION("connect and observe"){
     lars::Event<> event;
@@ -117,3 +117,15 @@ TEST_CASE("Event"){
 
 }
 
+TEST_CASE("EventReference", "[event]"){
+  lars::Event<> onA, onB;
+  lars::EventReference<> onR(onA);
+  unsigned aCount = 0, bCount = 0;
+  onR.connect([&](){ aCount++; });
+  onA.emit();
+  onR = onB;
+  onR.connect([&](){ bCount++; });
+  onB.emit();
+  REQUIRE(aCount == 1);
+  REQUIRE(bCount == 1);
+}

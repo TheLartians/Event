@@ -6,7 +6,7 @@
 template class lars::ObservableValue<int>;
 template class lars::DependentObservableValue<int,int,int>;
 
-TEST_CASE("Observable Value") {
+TEST_CASE("Observable Value", "[observable_value]") {
   using namespace lars;
 
   ObservableValue value(0);
@@ -20,7 +20,7 @@ TEST_CASE("Observable Value") {
   REQUIRE(*value == 2);
 }
 
-TEST_CASE("Dependent Observable Value") {
+TEST_CASE("Dependent Observable Value", "[observable_value]") {
   using namespace lars;
 
   ObservableValue a(1);
@@ -48,9 +48,8 @@ TEST_CASE("Dependent Observable Value") {
   REQUIRE(*prod == 10);
 }
 
-TEST_CASE("Operators") {
+TEST_CASE("Operators", "[observable_value]") {
   using namespace lars;
-
   struct A { int a = 0; };
   ObservableValue<A> value;
   REQUIRE(value->a == 0);

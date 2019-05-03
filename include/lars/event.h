@@ -64,7 +64,11 @@ namespace lars{
       data->observers.emplace_back(StoredHandler{data->IDCounter,std::make_shared<Handler>(h)});
       return data->IDCounter++;
     }
-        
+
+  protected:  
+    Event(const Event &) = default;
+    Event &operator=(const Event &) = default;
+
   public:
     
     struct Observer:public lars::Observer::Base{
@@ -100,9 +104,7 @@ namespace lars{
     Event():data(std::make_shared<Data>()){
     }
 
-    Event(const Event &) = delete;
     Event(Event &&other):Event(){ *this = std::move(other); }
-    Event &operator=(const Event &) = delete;
     Event &operator=(Event &&other){
       std::swap(data, other.data);
       return *this;
@@ -142,5 +144,19 @@ namespace lars{
     }
 
   };
+
+  template <typename ... Args> class EventReference: public Event<Args...> {
+  protected:
+    using Base = Event<Args...>;
+  
+  public:
+    EventReference(const Base &other):Base(other){}
+
+    EventReference &operator=(const Base &other){
+      Base::operator=(other);
+      return *this;
+    }
+  };
+
   
 }
