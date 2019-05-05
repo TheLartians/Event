@@ -37,7 +37,7 @@ With [CPM](https://github.com/TheLartians/CPM), lars::Event can be used in a CMa
 ```cmake
 CPMAddPackage(
   NAME LarsEvent
-  VERSION 2.0.3
+  VERSION 2.1
   GIT_REPOSITORY https://github.com/TheLartians/Event.git
 )
 
