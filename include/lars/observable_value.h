@@ -47,6 +47,10 @@ namespace lars {
       value = T(std::forward<Args>(args)...);
     }
     
+    explicit operator const T &() const {
+      return value;
+    }
+    
     const T & get()const{ 
       return value;
     }
