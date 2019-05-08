@@ -17,6 +17,7 @@ TEST_CASE("ObservableValue", "[observable_value]") {
     changes++; 
   });
   REQUIRE(*value == 0);
+  REQUIRE(static_cast<const int &>(value) == 0);
   current++;
   value.set(current);
   value.set(current);
