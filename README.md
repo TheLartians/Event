@@ -9,42 +9,81 @@
 
 A thread-safe event-listener template and observable value implementation for C++17.
 
-## Examples
+## API
 
-Full examples can be found in the [examples directory](https://github.com/TheLartians/Observe/tree/master/examples).
-
-### Using observe::Event
+The core API is best illustrated by an example.
 
 ```cpp
-observe::Event<float,float> onClick;
-auto observer = onClick.createObserver([](auto x, auto y){ handleClick(x,y); });
-onClick.emit(0,0); // emits event to all observers
-observer.reset(); // removes observer from event
+#include <string>
+#include <iostream>
+
+#include <observe/event.h>
+
+void example() {
+  // events can be valueless
+  observe::Event<> eventA;
+
+  // or have arguments
+  observe::Event<std::string, float> eventB;
+  
+  // connect will always trigger when an event is triggered
+  eventA.connect([](){
+    std::cout << "A triggered" << std::endl;
+  });
+  
+  // observers will remove themselves from the event on destroy or reset
+  observe::Observer observer = eventB.createObserver([](const std::string &str, float v){ 
+    std::cout << "B triggered with " << str << " and " << v << std::endl;
+  });
+
+  // call emit to trigger all observers
+  eventA.emit();
+  eventB.emit("meaning of life", 42);
+
+  // `observe::Observer` can store any type of observer
+  observer.observe(eventA, [](){ std::cout << "I am now observing A" << std::endl; });
+
+  // to remove an observer without destroying the object, call reset
+  observer.reset();
+}
 ```
 
+Note that events and observers are thread and exception safe. 
+
 ### Using observe::Value
+
+The project also includes a header `observe/value.h` with an experimental observable value implementation.
+The API is still subject to change, so use with caution.
 
 ```cpp
 observe::Value a = 1;
 observe::Value b = 2;
+
+// contains the sum of `a` and `b`
 observe::DependentObservableValue sum([](auto a, auto b){ return a+b; },a,b);
-sum.onChange.connect([](auto &v){ std::cout << "The result changed to " << r << std::endl; });
+
+// all observable values contain an `Event` `onChange`
+sum.onChange.connect([](auto &v){ 
+  std::cout << "The result changed to " << r << std::endl;
+});
+
+// access the value by dereferencing
 std::cout << "The result is " << *sum << std::endl; // -> the result is 3
+
+// changes will automatically propagate through dependent values
 a.set(3); // -> The result changed to 5
 ```
 
 ## Installation and usage
 
-With [CPM](https://github.com/TheLartians/CPM), observe::Event can be used in a CMake project simply by adding the following to the project's `CMakeLists.txt`.
+With [CPM.cmake](https://github.com/TheLartians/CPM) you can easily add the headers to your project.
 
 ```cmake
 CPMAddPackage(
-  NAME LarsObserve
-  VERSION 2.1
-  GIT_REPOSITORY https://github.com/TheLartians/Observe.git
+  NAME Observe
+  VERSION 3.0
+  GITHUB_REPOSITORY TheLartians/Observe
 )
 
-target_link_libraries(myProject LarsObserve)
+target_link_libraries(myProject Observe)
 ```
-
-Alternatively, the repository can be cloned locally and included it via `add_subdirectory`. Installing observe::Event will make it findable in CMake's `find_package`.

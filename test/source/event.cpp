@@ -56,7 +56,7 @@ TEST_CASE("Event") {
 
     SUBCASE("clear observers") {
       observe::Observer observer = event.createObserver([&]() { observeCount++; });
-      event.clearObservers();
+      event.reset();
       REQUIRE(event.observerCount() == 0);
       event.emit();
       REQUIRE(connectCount == 0);
@@ -127,9 +127,9 @@ TEST_CASE("Event") {
   }
 }
 
-TEST_CASE("EventReference") {
-  observe::Event<> onA, onB;
-  observe::EventReference<> onR(onA);
+TEST_CASE("SharedEvent") {
+  observe::SharedEvent<> onA, onB;
+  observe::SharedEvent<> onR(onA);
   unsigned aCount = 0, bCount = 0;
   onR.connect([&]() { aCount++; });
   onA.emit();
