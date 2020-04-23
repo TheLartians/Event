@@ -46,9 +46,9 @@ namespace observe {
     void reset() { data.reset(); }
 
     /**
-     * returns `true` if the event
+     * returns `true` if currently observing an event
      */
-    operator bool() const { return bool(data); }
+    explicit operator bool() const { return bool(data); }
 
   private:
     std::unique_ptr<Base> data;
