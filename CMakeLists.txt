@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
 # Note: update this to your new project's name and version
 project(Observe 
-  VERSION 1.0
+  VERSION 3.0
   LANGUAGES CXX
 )
 
@@ -43,9 +43,6 @@ set_target_properties(Observe PROPERTIES INTERFACE_COMPILE_FEATURES cxx_std_17)
 
 # beeing a cross-platform target, we enforce enforce standards conformance on MSVC
 target_compile_options(Observe INTERFACE "$<$<BOOL:${MSVC}>:/permissive->")
-
-# Link dependencies (if required)
-# target_link_libraries(Observe PUBLIC cxxopts)
 
 target_include_directories(Observe
   INTERFACE
