@@ -1,22 +1,22 @@
 /**
- * A small example that shows how to create and use ObservableValue and DependentObservableValue.
+ * A small example that shows how to create and use Value and DependentObservableValue.
  */
 
-#include <lars/observable_value.h>
+#include <observe/value.h>
 #include <string>
 #include <iostream>
 
 
 int main() {
-  using namespace lars;
+  using namespace observe;
 
-  ObservableValue a = 1;
+  Value a = 1;
   a.onChange.connect([](auto v){ std::cout << "a changed to " << v << std::endl; });
 
-  ObservableValue b = 2;
+  Value b = 2;
   b.onChange.connect([](auto v){ std::cout << "b changed to " << v << std::endl; });
 
-  ObservableValue c = 3;
+  Value c = 3;
   c.onChange.connect([](auto v){ std::cout << "c changed to " << v << std::endl; });
 
   DependentObservableValue sum([](auto a, auto b){ return a+b; },a,b);

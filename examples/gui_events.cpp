@@ -2,10 +2,10 @@
  * A small example that shows how to create and use the Event class.
  */
 
-#include <lars/event.h>
+#include <observe/event.h>
 #include <iostream>
 
-using ClickEvent = lars::Event<float,float>;
+using ClickEvent = observe::Event<float,float>;
 
 struct GuiElement{
   ClickEvent clicked;
@@ -18,7 +18,7 @@ int main() {
   GuiElement A,B;
   ClickEvent::Observer observer_1;
   // this observer can observe any type of event 
-  lars::Observer observer_2;
+  observe::Observer observer_2;
   
   observer_1.observe(A.clicked,[](float x,float y){ 
     cout << "observer 1 : A clicked at " << x << ", " << y << endl;

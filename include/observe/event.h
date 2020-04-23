@@ -7,7 +7,7 @@
 #include <mutex>
 #include <algorithm>
 
-namespace lars{
+namespace observe{
   
   template <typename ... Args> class Event;
   
@@ -71,7 +71,7 @@ namespace lars{
 
   public:
     
-    struct Observer:public lars::Observer::Base{
+    struct Observer:public observe::Observer::Base{
       std::weak_ptr<Data> data;
       HandlerID id;
       

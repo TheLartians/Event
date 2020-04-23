@@ -1,16 +1,16 @@
-#include <catch2/catch.hpp>
+#include <doctest/doctest.h>
+#include <observe/value.h>
 
-#include <lars/observable_value.h>
 
-  using namespace lars;
+  using namespace observe;
 
 // instantiate templates for coverage
-template class lars::ObservableValue<int>;
-template class lars::DependentObservableValue<int,int,int>;
+template class observe::Value<int>;
+template class observe::DependentObservableValue<int,int,int>;
 
-TEST_CASE("ObservableValue", "[observable_value]") {
+TEST_CASE("Value") {
   int current = 0;
-  ObservableValue value(current);
+  Value value(current);
   unsigned changes = 0;
   value.onChange.connect([&](auto &v){ 
     REQUIRE(current == v); 
@@ -29,9 +29,9 @@ TEST_CASE("ObservableValue", "[observable_value]") {
   REQUIRE(*value == 2);
 }
 
-TEST_CASE("ObservableValue without comparison operator", "[observable_value]") {
+TEST_CASE("Value without comparison operator") {
   struct A{ };
-  ObservableValue<A> value;
+  Value<A> value;
   unsigned changes = 0;
   value.onChange.connect([&](auto &){ changes++; });
   value.set();
@@ -40,9 +40,9 @@ TEST_CASE("ObservableValue without comparison operator", "[observable_value]") {
   REQUIRE(changes == 3);
 }
 
-TEST_CASE("Dependent Observable Value", "[observable_value]") {
-  ObservableValue a(1);
-  ObservableValue b(1);
+TEST_CASE("Dependent Observable Value") {
+  Value a(1);
+  Value b(1);
   DependentObservableValue sum([](auto a, auto b){ return a+b; },a,b);
 
   REQUIRE(*sum == 2);
@@ -51,7 +51,7 @@ TEST_CASE("Dependent Observable Value", "[observable_value]") {
   b.set(3);
   REQUIRE(*sum == 5);
 
-  ObservableValue c(3);
+  Value c(3);
   DependentObservableValue prod([](auto a, auto b){ return a*b; },sum,c);
 
   REQUIRE(*prod == 15);
@@ -66,9 +66,9 @@ TEST_CASE("Dependent Observable Value", "[observable_value]") {
   REQUIRE(*prod == 10);
 }
 
-TEST_CASE("Operators", "[observable_value]") {
-  using namespace lars;
+TEST_CASE("Operators") {
+  using namespace observe;
   struct A { int a = 0; };
-  ObservableValue<A> value;
+  Value<A> value;
   REQUIRE(value->a == 0);
 }

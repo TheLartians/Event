@@ -1,99 +1,66 @@
-cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 
 # ---- Project ----
 
-project(LarsEvent 
-  VERSION 2.1
+# Note: update this to your new project's name and version
+project(Observe 
+  VERSION 1.0
   LANGUAGES CXX
 )
 
-# ---- Configuration variables ----
-
-option(LARS_EVENT_ENABLE_TESTS "Enable tests" OFF)
-option(LARS_EVENT_BUILD_EXAMPLES "Enable examples" OFF)
-
 # ---- Include guards ----
 
-if(TARGET LarsEvent)
-  return()
-endif()
-
-if(${PROJECT_SOURCE_DIR} STREQUAL ${PROJECT_BINARY_DIR})
+if(PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
     message(FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there.")
 endif()
 
-# ---- Header target ----
+# --- Import tools ----
 
-FILE(GLOB headers "${CMAKE_CURRENT_SOURCE_DIR}/include/lars/*.h")
-add_library(LarsEvent-headers EXCLUDE_FROM_ALL ${headers})
-SET_TARGET_PROPERTIES(LarsEvent-headers PROPERTIES LINKER_LANGUAGE CXX)
+include(cmake/tools.cmake)
+
+# ---- Add dependencies via CPM ----
+# see https://github.com/TheLartians/CPM.cmake for more info
+
+include(cmake/CPM.cmake)
+
+# PackageProject.cmake will be used to make our target installable
+CPMAddPackage(
+  NAME PackageProject.cmake
+  GITHUB_REPOSITORY TheLartians/PackageProject.cmake
+  VERSION 1.2
+)
+
+# ---- Add source files ----
+FILE(GLOB_RECURSE headers CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h")
 
 # ---- Create library ----
 
-add_library(LarsEvent INTERFACE)
+add_library(ObserveHeaders EXCLUDE_FROM_ALL ${headers})
+set_target_properties(ObserveHeaders PROPERTIES LINKER_LANGUAGE CXX)
 
-target_include_directories(LarsEvent
-  INTERFACE 
+add_library(Observe INTERFACE)
+set_target_properties(Observe PROPERTIES INTERFACE_COMPILE_FEATURES cxx_std_17)
+
+# beeing a cross-platform target, we enforce enforce standards conformance on MSVC
+target_compile_options(Observe INTERFACE "$<$<BOOL:${MSVC}>:/permissive->")
+
+# Link dependencies (if required)
+# target_link_libraries(Observe PUBLIC cxxopts)
+
+target_include_directories(Observe
+  INTERFACE
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include>
+    $<INSTALL_INTERFACE:include/${PROJECT_NAME}-${PROJECT_VERSION}>
 )
 
-include(CMakePackageConfigHelpers)
+# ---- Create an installable target ----
+# this allows users to install and find the library via `find_package()`.
 
-write_basic_package_version_file(
-  "${PROJECT_BINARY_DIR}/LarsEventConfigVersion.cmake"
+packageProject(
+  NAME ${PROJECT_NAME}
   VERSION ${PROJECT_VERSION}
-  COMPATIBILITY AnyNewerVersion
+  BINARY_DIR ${PROJECT_BINARY_DIR}
+  INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include
+  INCLUDE_DESTINATION include/${PROJECT_NAME}-${PROJECT_VERSION}
+  DEPENDENCIES ""
 )
-
-# ---- Install ----
-
-install(
-  TARGETS LarsEvent
-  EXPORT LarsEventTargets
-  LIBRARY DESTINATION lib COMPONENT Runtime
-  ARCHIVE DESTINATION lib COMPONENT Development
-  RUNTIME DESTINATION bin COMPONENT Runtime
-  PUBLIC_HEADER DESTINATION include COMPONENT Development
-  BUNDLE DESTINATION bin COMPONENT Runtime
-)
-
-include(CMakePackageConfigHelpers)
-
-configure_package_config_file(
-  "${PROJECT_SOURCE_DIR}/cmake/LarsEventConfig.cmake.in"
-  "${PROJECT_BINARY_DIR}/LarsEventConfig.cmake"
-  INSTALL_DESTINATION lib/cmake/LarsEvent
-)
-
-install(
-  EXPORT LarsEventTargets 
-  DESTINATION lib/cmake/LarsEvent
-)
-
-install(
-  FILES 
-    "${PROJECT_BINARY_DIR}/LarsEventConfigVersion.cmake"
-    "${PROJECT_BINARY_DIR}/LarsEventConfig.cmake"
-  DESTINATION 
-    lib/cmake/LarsEvent
-)
-
-install(
-  DIRECTORY ${PROJECT_SOURCE_DIR}/include/
-  DESTINATION include
-)
-
-# ---- Examples ----
-
-IF(${LARS_EVENT_BUILD_EXAMPLES})
-  add_subdirectory(examples)    
-ENDIF()
-
-# ---- Test ----
-
-if(${LARS_EVENT_ENABLE_TESTS})
-  ENABLE_TESTING()  
-  add_subdirectory(tests)  
-endif()
-

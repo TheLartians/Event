@@ -1,13 +1,13 @@
 #pragma once
 
-#include <lars/event.h>
+#include <observe/event.h>
 #include <tuple>
 #include <type_traits>
 #include <utility>
 
-namespace lars {
+namespace observe {
 
-  namespace observable_value_detail {
+  namespace value_detail {
     // source: https://stackoverflow.com/questions/6534041/how-to-check-whether-operator-exists
     struct No {}; 
     template<typename T, typename Arg> No operator== (const T&, const Arg&);
@@ -16,7 +16,7 @@ namespace lars {
     };  
   }
 
-  template <class T> class ObservableValue {
+  template <class T> class Value {
   protected:
     T value;
 
@@ -24,14 +24,14 @@ namespace lars {
     using OnChange = Event<const T &>;
     OnChange onChange;
 
-    template <typename ... Args> ObservableValue(Args ... args):value(std::forward<Args>(args)...){
+    template <typename ... Args> Value(Args ... args):value(std::forward<Args>(args)...){
     }
 
-    ObservableValue(ObservableValue &&) = delete;
-    ObservableValue &operator=(ObservableValue &&) = delete;
+    Value(Value &&) = delete;
+    Value &operator=(Value &&) = delete;
 
     template <typename ... Args> void set(Args && ... args){ 
-      if constexpr (observable_value_detail::HasEqual<T>::value) {
+      if constexpr (value_detail::HasEqual<T>::value) {
         T newValue(std::forward<Args>(args)...);
         if (value != newValue) {
           value = std::move(newValue);
@@ -65,18 +65,18 @@ namespace lars {
     
   };
 
-  template <class T> ObservableValue(T) -> ObservableValue<T>;
+  template <class T> Value(T) -> Value<T>;
 
-  template <class T, typename ... D> class DependentObservableValue: public ObservableValue<T> {
+  template <class T, typename ... D> class DependentObservableValue: public Value<T> {
   private:
-    std::tuple<typename ObservableValue<D>::OnChange::Observer ...> observers;
+    std::tuple<typename Value<D>::OnChange::Observer ...> observers;
   
   public:
     template <class H> DependentObservableValue(
       const H &handler,
-      const ObservableValue<D> & ... deps
+      const Value<D> & ... deps
     ): 
-      ObservableValue<T>(handler(deps.get()...)),
+      Value<T>(handler(deps.get()...)),
       observers(std::make_tuple(deps.onChange.createObserver([&,this](const auto &){
         this->set(handler(deps.get()...));
       })...))
@@ -88,7 +88,7 @@ namespace lars {
 
   template<class F, typename ... D> DependentObservableValue(
     F,
-    const ObservableValue<D> &...
+    const Value<D> &...
   ) -> DependentObservableValue<typename std::invoke_result<F, const D &...>::type, D...>;
 
 }

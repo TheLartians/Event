@@ -1,22 +1,22 @@
-#include <catch2/catch.hpp>
+#include <doctest/doctest.h>
 
-#include <lars/event.h>
+#include <observe/event.h>
 
-using namespace lars;
+using namespace observe;
 
 // instantiate template for coverage
-template class lars::Event<>;
+template class observe::Event<>;
 
-TEST_CASE("Event", "[event]"){
+TEST_CASE("Event"){
 
-  SECTION("connect and observe"){
-    lars::Event<> event;
+  SUBCASE("connect and observe"){
+    observe::Event<> event;
     REQUIRE(event.observerCount() == 0);
     unsigned connectCount = 0, observeCount = 0;
     event.connect([&](){ connectCount++; });
     
-    SECTION("reset observer"){
-      lars::Event<>::Observer observer;
+    SUBCASE("reset observer"){
+      observe::Event<>::Observer observer;
       observer = event.createObserver([&](){ observeCount++; });
       for (int i=0; i<10; ++i) { event.emit(); }
       REQUIRE(event.observerCount() == 2);
@@ -27,15 +27,15 @@ TEST_CASE("Event", "[event]"){
       REQUIRE(connectCount == 20);
     }
 
-    SECTION("scoped observer"){
-      SECTION("lars::Observer"){
-        lars::Observer observer;
+    SUBCASE("scoped observer"){
+      SUBCASE("observe::Observer"){
+        observe::Observer observer;
         observer.observe(event, [&](){ observeCount++; });
         REQUIRE(event.observerCount() == 2);
         for (int i=0; i<10; ++i) { event.emit(); }
       }
-      SECTION("lars::Event<>::Observer"){
-        lars::Event<>::Observer observer;
+      SUBCASE("observe::Event<>::Observer"){
+        observe::Event<>::Observer observer;
         observer.observe(event, [&](){ observeCount++; });
         REQUIRE(event.observerCount() == 2);
         for (int i=0; i<10; ++i) { event.emit(); }
@@ -46,8 +46,8 @@ TEST_CASE("Event", "[event]"){
       REQUIRE(connectCount == 20);
     }
 
-    SECTION("clear observers"){
-      lars::Observer observer = event.createObserver([&](){ observeCount++; });
+    SUBCASE("clear observers"){
+      observe::Observer observer = event.createObserver([&](){ observeCount++; });
       event.clearObservers();
       REQUIRE(event.observerCount() == 0);
       event.emit();
@@ -55,18 +55,18 @@ TEST_CASE("Event", "[event]"){
     }
   }
 
-  SECTION("removing observer during emit"){
-    lars::Event<> event;
-    lars::Event<>::Observer observer;
+  SUBCASE("removing observer during emit"){
+    observe::Event<> event;
+    observe::Event<>::Observer observer;
     unsigned count = 0;
-    SECTION("self removing"){
+    SUBCASE("self removing"){
       observer = event.createObserver([&](){ observer.reset(); count++; });
       event.emit();
       REQUIRE(count == 1);
       event.emit();
       REQUIRE(count == 1);
     }
-    SECTION("other removing"){
+    SUBCASE("other removing"){
       event.connect([&](){ observer.reset(); });
       observer = event.createObserver([&](){ count++; });
       event.emit();
@@ -76,8 +76,8 @@ TEST_CASE("Event", "[event]"){
     }
   }
 
-  SECTION("adding observers during emit"){
-    lars::Event<> event;
+  SUBCASE("adding observers during emit"){
+    observe::Event<> event;
     std::function<void()> callback;
     callback = [&](){ event.connect(callback); };
     event.connect(callback);
@@ -88,20 +88,20 @@ TEST_CASE("Event", "[event]"){
     REQUIRE(event.observerCount() == 4);
   }
 
-  SECTION("emit data"){
-    lars::Event<int, int> event;
+  SUBCASE("emit data"){
+    observe::Event<int, int> event;
     int sum = 0;
     event.connect([&](auto a, auto b){ sum = a + b; });
     event.emit(2,3);
     REQUIRE(sum == 5);
   }
 
-  SECTION("move"){
-    lars::Observer observer;
+  SUBCASE("move"){
+    observe::Observer observer;
     int result = 0;
-    lars::Event<int> event;
+    observe::Event<int> event;
     {
-      lars::Event<int> tmpEvent;
+      observe::Event<int> tmpEvent;
       observer = tmpEvent.createObserver([&](auto i){ result = i; });
       tmpEvent.emit(5);
       REQUIRE(result == 5);
@@ -117,9 +117,9 @@ TEST_CASE("Event", "[event]"){
 
 }
 
-TEST_CASE("EventReference", "[event]"){
-  lars::Event<> onA, onB;
-  lars::EventReference<> onR(onA);
+TEST_CASE("EventReference"){
+  observe::Event<> onA, onB;
+  observe::EventReference<> onR(onA);
   unsigned aCount = 0, bCount = 0;
   onR.connect([&](){ aCount++; });
   onA.emit();
