@@ -41,6 +41,7 @@ void example() {
   eventB.emit("meaning of life", 42);
 
   // `observe::Observer` can store any type of observer
+  // previous observers will be removed
   observer.observe(eventA, [](){ std::cout << "I am now observing A" << std::endl; });
 
   // to remove an observer without destroying the object, call reset
@@ -48,7 +49,9 @@ void example() {
 }
 ```
 
-Note that events and observers are thread and exception safe, though any thrown exception will propagate out of the `event.emit()` call.
+Note that events and observers are thread and exception safe, as long as the handlers manage their own resources.
+Handlers can safely remove observers (including themselves) from the event when beeing called.
+Thrown exceptions will propagate out of the `event.emit()` call.
 
 ### Using observe::Value
 
