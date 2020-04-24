@@ -120,9 +120,9 @@ namespace observe {
      */
     void emit(Args... args) const {
       std::vector<std::weak_ptr<Handler>> handlers;
-      handlers.resize(data->observers.size());
       {
         std::lock_guard<std::mutex> lock(data->observerMutex);
+        handlers.resize(data->observers.size());
         std::transform(data->observers.begin(), data->observers.end(), handlers.begin(),
                        [](auto &h) { return h.callback; });
       }
