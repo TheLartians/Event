@@ -142,7 +142,12 @@ namespace observe {
     /**
      * Add a permanent handler to the event.
      */
-    void connect(const Handler &h) const { addHandler(h); }
+    HandlerID connect(const Handler &h) const { return addHandler(h); }
+
+    /**
+     * Remove a permanent handler from the event.
+     */
+    void disconnect(HandlerID id) const { Observer(data, id).reset(); }
 
     /**
      * Remove all handlers (temporary and permanent) connected to the event.
