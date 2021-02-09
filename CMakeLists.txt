@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
 # ---- Project ----
 
 # Note: update this to your new project's name and version
-project(Observe 
+project(Observe
   VERSION 3.0
   LANGUAGES CXX
 )
@@ -31,7 +31,7 @@ CPMAddPackage(
 )
 
 # ---- Add source files ----
-FILE(GLOB_RECURSE headers CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h")
+file(GLOB_RECURSE headers CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h")
 
 # ---- Create library ----
 
@@ -49,6 +49,10 @@ target_include_directories(Observe
     $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include/${PROJECT_NAME}-${PROJECT_VERSION}>
 )
+
+# for run-clang-tidy
+add_executable(example example/example.cpp)
+target_link_libraries(example Observe)
 
 # ---- Create an installable target ----
 # this allows users to install and find the library via `find_package()`.

@@ -3,7 +3,7 @@
 # See https://github.com/TheLartians/CPM for usage and update instructions.
 #
 # MIT License
-# ----------- 
+# -----------
 #[[
   Copyright (c) 2019 Lars Melchior
 
@@ -32,7 +32,7 @@ set(CURRENT_CPM_VERSION 0.18)
 
 if(CPM_DIRECTORY)
   if(NOT ${CPM_DIRECTORY} MATCHES ${CMAKE_CURRENT_LIST_DIR})
-    if (${CPM_VERSION} VERSION_LESS ${CURRENT_CPM_VERSION})
+    if(${CPM_VERSION} VERSION_LESS ${CURRENT_CPM_VERSION})
       message(AUTHOR_WARNING "${CPM_INDENT} \
 A dependency is using a more recent CPM version (${CURRENT_CPM_VERSION}) than the current project (${CPM_VERSION}). \
 It is recommended to upgrade CPM to the most recent version. \
@@ -89,8 +89,8 @@ function(CPMFindPackage)
   )
 
   cmake_parse_arguments(CPM_ARGS "" "${oneValueArgs}" "" ${ARGN})
-  
-  if (CPM_DOWNLOAD_ALL)
+
+  if(CPM_DOWNLOAD_ALL)
     CPMAddPackage(${ARGN})
     cpm_export_variables()
     return()
@@ -133,21 +133,21 @@ function(CPMAddPackage)
       return()
     endif()
 
-    if(CPM_LOCAL_PACKAGES_ONLY) 
+    if(CPM_LOCAL_PACKAGES_ONLY)
       message(SEND_ERROR "CPM: ${CPM_ARGS_NAME} not found via find_package(${CPM_ARGS_NAME} ${CPM_ARGS_VERSION})")
     endif()
   endif()
 
-  if (NOT DEFINED CPM_ARGS_VERSION)
-    if (DEFINED CPM_ARGS_GIT_TAG) 
+  if(NOT DEFINED CPM_ARGS_VERSION)
+    if(DEFINED CPM_ARGS_GIT_TAG)
       cpm_get_version_from_git_tag("${CPM_ARGS_GIT_TAG}" CPM_ARGS_VERSION)
     endif()
-    if (NOT DEFINED CPM_ARGS_VERSION) 
+    if(NOT DEFINED CPM_ARGS_VERSION)
       set(CPM_ARGS_VERSION 0)
     endif()
   endif()
 
-  if (NOT DEFINED CPM_ARGS_GIT_TAG)
+  if(NOT DEFINED CPM_ARGS_GIT_TAG)
     set(CPM_ARGS_GIT_TAG v${CPM_ARGS_VERSION})
   endif()
 
@@ -159,20 +159,20 @@ function(CPMAddPackage)
     set(DOWNLOAD_ONLY NO)
   endif()
 
-  if (CPM_ARGS_GITHUB_REPOSITORY)
+  if(CPM_ARGS_GITHUB_REPOSITORY)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS GIT_REPOSITORY "https://github.com/${CPM_ARGS_GITHUB_REPOSITORY}.git")
   endif()
 
-  if (CPM_ARGS_GITLAB_REPOSITORY)
+  if(CPM_ARGS_GITLAB_REPOSITORY)
     list(APPEND CPM_ARGS_UNPARSED_ARGUMENTS GIT_REPOSITORY "https://gitlab.com/${CPM_ARGS_GITLAB_REPOSITORY}.git")
   endif()
 
-  if (${CPM_ARGS_NAME} IN_LIST CPM_PACKAGES)
+  if(${CPM_ARGS_NAME} IN_LIST CPM_PACKAGES)
     CPMGetPackageVersion(${CPM_ARGS_NAME} CPM_PACKAGE_VERSION)
     if(${CPM_PACKAGE_VERSION} VERSION_LESS ${CPM_ARGS_VERSION})
       message(WARNING "${CPM_INDENT} requires a newer version of ${CPM_ARGS_NAME} (${CPM_ARGS_VERSION}) than currently included (${CPM_PACKAGE_VERSION}).")
     endif()
-    if (CPM_ARGS_OPTIONS)
+    if(CPM_ARGS_OPTIONS)
       foreach(OPTION ${CPM_ARGS_OPTIONS})
         cpm_parse_option(${OPTION})
         if(NOT "${${OPTION_KEY}}" STREQUAL ${OPTION_VALUE})
@@ -182,16 +182,16 @@ function(CPMAddPackage)
     endif()
     cpm_fetch_package(${CPM_ARGS_NAME} ${DOWNLOAD_ONLY})
     cpm_get_fetch_properties(${CPM_ARGS_NAME})
-    SET(${CPM_ARGS_NAME}_SOURCE_DIR "${${CPM_ARGS_NAME}_SOURCE_DIR}")
-    SET(${CPM_ARGS_NAME}_BINARY_DIR "${${CPM_ARGS_NAME}_BINARY_DIR}")  
-    SET(${CPM_ARGS_NAME}_ADDED NO)
+    set(${CPM_ARGS_NAME}_SOURCE_DIR "${${CPM_ARGS_NAME}_SOURCE_DIR}")
+    set(${CPM_ARGS_NAME}_BINARY_DIR "${${CPM_ARGS_NAME}_BINARY_DIR}")
+    set(${CPM_ARGS_NAME}_ADDED NO)
     cpm_export_variables()
     return()
   endif()
 
   CPMRegisterPackage(${CPM_ARGS_NAME} ${CPM_ARGS_VERSION})
 
-  if (CPM_ARGS_OPTIONS)
+  if(CPM_ARGS_OPTIONS)
     foreach(OPTION ${CPM_ARGS_OPTIONS})
       cpm_parse_option(${OPTION})
       set(${OPTION_KEY} ${OPTION_VALUE} CACHE INTERNAL "")
@@ -200,24 +200,24 @@ function(CPMAddPackage)
 
   set(FETCH_CONTENT_DECLARE_EXTRA_OPTS "")
 
-  if (DEFINED CPM_ARGS_GIT_TAG)
+  if(DEFINED CPM_ARGS_GIT_TAG)
     set(PACKAGE_INFO "${CPM_ARGS_GIT_TAG}")
   else()
     set(PACKAGE_INFO "${CPM_ARGS_VERSION}")
   endif()
 
-  if (DEFINED CPM_ARGS_DOWNLOAD_COMMAND)
+  if(DEFINED CPM_ARGS_DOWNLOAD_COMMAND)
     set(FETCH_CONTENT_DECLARE_EXTRA_OPTS DOWNLOAD_COMMAND ${CPM_ARGS_DOWNLOAD_COMMAND})
   elseif(DEFINED CPM_ARGS_SOURCE_DIR)
     set(FETCH_CONTENT_DECLARE_EXTRA_OPTS SOURCE_DIR ${CPM_ARGS_SOURCE_DIR})
-  elseif (CPM_SOURCE_CACHE)
+  elseif(CPM_SOURCE_CACHE)
     string(TOLOWER ${CPM_ARGS_NAME} lower_case_name)
     set(origin_parameters ${CPM_ARGS_UNPARSED_ARGUMENTS})
     list(SORT origin_parameters)
     string(SHA1 origin_hash "${origin_parameters}")
     set(download_directory ${CPM_SOURCE_CACHE}/${lower_case_name}/${origin_hash})
     list(APPEND FETCH_CONTENT_DECLARE_EXTRA_OPTS SOURCE_DIR ${download_directory})
-    if (EXISTS ${download_directory})
+    if(EXISTS ${download_directory})
       list(APPEND FETCH_CONTENT_DECLARE_EXTRA_OPTS DOWNLOAD_COMMAND ":")
       set(PACKAGE_INFO "${download_directory}")
     else()
@@ -230,16 +230,16 @@ function(CPMAddPackage)
   cpm_declare_fetch(${CPM_ARGS_NAME} ${CPM_ARGS_VERSION} ${PACKAGE_INFO} "${CPM_ARGS_UNPARSED_ARGUMENTS}" ${FETCH_CONTENT_DECLARE_EXTRA_OPTS})
   cpm_fetch_package(${CPM_ARGS_NAME} ${DOWNLOAD_ONLY})
   cpm_get_fetch_properties(${CPM_ARGS_NAME})
-  SET(${CPM_ARGS_NAME}_ADDED YES)
+  set(${CPM_ARGS_NAME}_ADDED YES)
   cpm_export_variables()
 endfunction()
 
 # export variables available to the caller to the parent scope
 # expects ${CPM_ARGS_NAME} to be set
 macro(cpm_export_variables)
-  SET(${CPM_ARGS_NAME}_SOURCE_DIR "${${CPM_ARGS_NAME}_SOURCE_DIR}" PARENT_SCOPE)
-  SET(${CPM_ARGS_NAME}_BINARY_DIR "${${CPM_ARGS_NAME}_BINARY_DIR}" PARENT_SCOPE)
-  SET(${CPM_ARGS_NAME}_ADDED "${${CPM_ARGS_NAME}_ADDED}" PARENT_SCOPE)
+  set(${CPM_ARGS_NAME}_SOURCE_DIR "${${CPM_ARGS_NAME}_SOURCE_DIR}" PARENT_SCOPE)
+  set(${CPM_ARGS_NAME}_BINARY_DIR "${${CPM_ARGS_NAME}_BINARY_DIR}" PARENT_SCOPE)
+  set(${CPM_ARGS_NAME}_ADDED "${${CPM_ARGS_NAME}_ADDED}" PARENT_SCOPE)
 endmacro()
 
 # declares that a package has been added to CPM
@@ -254,11 +254,11 @@ function(CPMGetPackageVersion PACKAGE OUTPUT)
   set(${OUTPUT} "${CPM_PACKAGE_${PACKAGE}_VERSION}" PARENT_SCOPE)
 endfunction()
 
-# declares a package in FetchContent_Declare 
-function (cpm_declare_fetch PACKAGE VERSION INFO)
+# declares a package in FetchContent_Declare
+function(cpm_declare_fetch PACKAGE VERSION INFO)
   message(STATUS "${CPM_INDENT} adding package ${PACKAGE}@${VERSION} (${INFO})")
 
-  if (${CPM_DRY_RUN}) 
+  if(${CPM_DRY_RUN})
     message(STATUS "${CPM_INDENT} package not declared (dry run)")
     return()
   endif()
@@ -270,20 +270,20 @@ function (cpm_declare_fetch PACKAGE VERSION INFO)
 endfunction()
 
 # returns properties for a package previously defined by cpm_declare_fetch
-function (cpm_get_fetch_properties PACKAGE)
-  if (${CPM_DRY_RUN}) 
+function(cpm_get_fetch_properties PACKAGE)
+  if(${CPM_DRY_RUN})
     return()
   endif()
   FetchContent_GetProperties(${PACKAGE})
   string(TOLOWER ${PACKAGE} lpackage)
-  SET(${PACKAGE}_SOURCE_DIR "${${lpackage}_SOURCE_DIR}" PARENT_SCOPE)
-  SET(${PACKAGE}_BINARY_DIR "${${lpackage}_BINARY_DIR}" PARENT_SCOPE)
+  set(${PACKAGE}_SOURCE_DIR "${${lpackage}_SOURCE_DIR}" PARENT_SCOPE)
+  set(${PACKAGE}_BINARY_DIR "${${lpackage}_BINARY_DIR}" PARENT_SCOPE)
 endfunction()
 
 # downloads a previously declared package via FetchContent
-function (cpm_fetch_package PACKAGE DOWNLOAD_ONLY)  
+function(cpm_fetch_package PACKAGE DOWNLOAD_ONLY)
 
-  if (${CPM_DRY_RUN}) 
+  if(${CPM_DRY_RUN})
     message(STATUS "${CPM_INDENT} package ${PACKAGE} not fetched (dry run)")
     return()
   endif()
@@ -305,7 +305,7 @@ function(cpm_parse_option OPTION)
   string(REGEX MATCH "^[^ ]+" OPTION_KEY ${OPTION})
   string(LENGTH ${OPTION} OPTION_LENGTH)
   string(LENGTH ${OPTION_KEY} OPTION_KEY_LENGTH)
-  if (OPTION_KEY_LENGTH STREQUAL OPTION_LENGTH)
+  if(OPTION_KEY_LENGTH STREQUAL OPTION_LENGTH)
     # no value for key provided, assume user wants to set option to "ON"
     set(OPTION_VALUE "ON")
   else()
@@ -319,11 +319,11 @@ endfunction()
 # guesses the package version from a git tag
 function(cpm_get_version_from_git_tag GIT_TAG RESULT)
   string(LENGTH ${GIT_TAG} length)
-  if (length EQUAL 40) 
+  if(length EQUAL 40)
     # GIT_TAG is probably a git hash
-    SET(${RESULT} 0 PARENT_SCOPE)
+    set(${RESULT} 0 PARENT_SCOPE)
   else()
     string(REGEX MATCH "v?([0123456789.]*).*" _ ${GIT_TAG})
-    SET(${RESULT} ${CMAKE_MATCH_1} PARENT_SCOPE)
+    set(${RESULT} ${CMAKE_MATCH_1} PARENT_SCOPE)
   endif()
 endfunction()

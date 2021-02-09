@@ -66,17 +66,17 @@ namespace observe {
     class Observer : public observe::Observer::Base {
     private:
       std::weak_ptr<Data> data;
-      HandlerID id;
+      HandlerID id {};
 
     public:
       Observer() {}
       Observer(const std::weak_ptr<Data> &_data, HandlerID _id) : data(_data), id(_id) {}
 
-      Observer(Observer &&other) = default;
+      Observer(Observer &&other) noexcept = default;
       Observer(const Observer &other) = delete;
 
       Observer &operator=(const Observer &other) = delete;
-      Observer &operator=(Observer &&other) = default;
+      Observer &operator=(Observer &&other) noexcept = default;
 
       /**
        * Observe another event of the same type
@@ -106,9 +106,9 @@ namespace observe {
 
     Event() : data(std::make_shared<Data>()) {}
 
-    Event(Event &&other) : Event() { *this = std::move(other); }
+    Event(Event &&other) noexcept : Event() { *this = std::move(other); }
 
-    Event &operator=(Event &&other) {
+    Event &operator=(Event &&other) noexcept {
       std::swap(data, other.data);
       return *this;
     }
@@ -176,6 +176,7 @@ namespace observe {
 
     SharedEvent(const SharedEvent<Args...> &other) : Event<Args...>(other) {}
 
+    // TODO: warning: operator=() does not handle self-assignment properly [cert-oop54-cpp]
     SharedEvent &operator=(const SharedEvent<Args...> &other) {
       Event<Args...>::operator=(other);
       return *this;

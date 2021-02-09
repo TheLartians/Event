@@ -30,7 +30,7 @@ namespace observe {
     Value(Value &&) = delete;
     Value &operator=(Value &&) = delete;
 
-    template <typename... Args> void set(Args &&... args) {
+    template <typename... Args> void set(Args &&...args) {
       if constexpr (value_detail::HasEqual<T>::value) {
         T newValue(std::forward<Args>(args)...);
         if (value != newValue) {
@@ -56,20 +56,20 @@ namespace observe {
     const T *operator->() const { return &value; }
   };
 
-  template <class T> Value(T)->Value<T>;
+  template <class T> Value(T) -> Value<T>;
 
   template <class T, typename... D> class DependentObservableValue : public Value<T> {
   private:
     std::tuple<typename Value<D>::OnChange::Observer...> observers;
 
   public:
-    template <class H> DependentObservableValue(const H &handler, const Value<D> &... deps)
+    template <class H> DependentObservableValue(const H &handler, const Value<D> &...deps)
         : Value<T>(handler(deps.get()...)),
           observers(std::make_tuple(deps.onChange.createObserver(
               [&, this](const auto &) { this->set(handler(deps.get()...)); })...)) {}
   };
 
   template <class F, typename... D> DependentObservableValue(F, const Value<D> &...)
-      ->DependentObservableValue<typename std::invoke_result<F, const D &...>::type, D...>;
+      -> DependentObservableValue<typename std::invoke_result<F, const D &...>::type, D...>;
 
 }  // namespace observe

@@ -19,7 +19,7 @@ CPMAddPackage(
   GIT_TAG 2.3.7
 )
 
-if (TEST_INSTALLED_VERSION)
+if(TEST_INSTALLED_VERSION)
   find_package(Observe REQUIRED)
 else()
   CPMAddPackage(
@@ -43,8 +43,8 @@ target_link_libraries(ObserveTests doctest Observe)
 set_target_properties(ObserveTests PROPERTIES CXX_STANDARD 17)
 
 # enable compiler warnings
-if (NOT TEST_INSTALLED_VERSION)
-  if (CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+if(NOT TEST_INSTALLED_VERSION)
+  if(CMAKE_CXX_COMPILER_ID MATCHES "Clang" OR CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     target_compile_options(Observe INTERFACE -Wall -pedantic -Wextra -Werror)
   elseif(MSVC)
     target_compile_options(Observe INTERFACE /W4 /WX)
@@ -53,14 +53,14 @@ endif()
 
 # ---- Add ObserveTests ----
 
-ENABLE_TESTING()
+enable_testing()
 
 include(${doctest_SOURCE_DIR}/scripts/cmake/doctest.cmake)
 doctest_discover_tests(ObserveTests)
 
 # ---- code coverage ----
 
-if (ENABLE_TEST_COVERAGE)
+if(ENABLE_TEST_COVERAGE)
   target_compile_options(Observe INTERFACE -O0 -g -fprofile-arcs -ftest-coverage)
   target_link_options(Observe INTERFACE -fprofile-arcs -ftest-coverage)
 endif()
