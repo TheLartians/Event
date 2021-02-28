@@ -1,6 +1,7 @@
+---
 name: Install
 
-on: [push]
+on: [push, pull_request]
 
 env:
   CTEST_OUTPUT_ON_FAILURE: 1
@@ -9,23 +10,23 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    
+
     steps:
-    - uses: actions/checkout@v1
-    
-    - name: build and install library
-      run: |
-        CXX=g++-8 cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release
-        sudo cmake --build build --target install
-        rm -rf build
+      - uses: actions/checkout@v1
 
-    - name: configure
-      run: CXX=g++-8 cmake -Htest -Bbuild -DTEST_INSTALLED_VERSION=1
+      - name: build and install library
+        run: |
+          CXX=g++-8 cmake -H. -Bbuild -DCMAKE_BUILD_TYPE=Release
+          sudo cmake --build build --target install
+          rm -rf build
 
-    - name: build
-      run: cmake --build build --config Debug -j4
+      - name: configure
+        run: CXX=g++-8 cmake -Htest -Bbuild -DTEST_INSTALLED_VERSION=1
 
-    - name: test
-      run: |
-        cd build
-        ctest --build-config Debug
+      - name: build
+        run: cmake --build build --config Debug -j4
+
+      - name: test
+        run: |
+          cd build
+          ctest --build-config Debug

@@ -1,20 +1,21 @@
+---
 name: Style
 
-on: [push]
+on: [push, pull_request]
 
 jobs:
   build:
 
     runs-on: macos-latest
-    
+
     steps:
-    - uses: actions/checkout@v1
-    
-    - name: Install clang-format
-      run: brew install clang-format
+      - uses: actions/checkout@v1
 
-    - name: configure
-      run: cmake -Htest -Bbuild
+      - name: Install clang-format
+        run: brew install clang-format
 
-    - name: check style
-      run: cmake --build build --target check-format
+      - name: configure
+        run: cmake -Htest -Bbuild
+
+      - name: check style
+        run: cmake --build build --target check-format

@@ -1,6 +1,7 @@
+---
 name: Windows
 
-on: [push]
+on: [push, pull_request]
 
 env:
   CTEST_OUTPUT_ON_FAILURE: 1
@@ -9,17 +10,17 @@ jobs:
   build:
 
     runs-on: windows-latest
-    
+
     steps:
-    - uses: actions/checkout@v1
-    
-    - name: configure
-      run: cmake -Htest -Bbuild
+      - uses: actions/checkout@v1
 
-    - name: build
-      run: cmake --build build --config Debug -j4
+      - name: configure
+        run: cmake -Htest -Bbuild
 
-    - name: test
-      run: |
-        cd build
-        ctest --build-config Debug
+      - name: build
+        run: cmake --build build --config Debug -j4
+
+      - name: test
+        run: |
+          cd build
+          ctest --build-config Debug
