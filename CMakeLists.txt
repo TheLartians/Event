@@ -1,9 +1,10 @@
-cmake_minimum_required(VERSION 3.14 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.14...3.20)
 
 # ---- Project ----
 
 # Note: update this to your new project's name and version
-project(Observe
+project(
+  Observe
   VERSION 3.0
   LANGUAGES CXX
 )
@@ -11,7 +12,10 @@ project(Observe
 # ---- Include guards ----
 
 if(PROJECT_SOURCE_DIR STREQUAL PROJECT_BINARY_DIR)
-    message(FATAL_ERROR "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there.")
+  message(
+    FATAL_ERROR
+      "In-source builds not allowed. Please make a new directory (called a build directory) and run CMake from there."
+  )
 endif()
 
 # --- Import tools ----
@@ -27,27 +31,34 @@ include(cmake/CPM.cmake)
 CPMAddPackage(
   NAME PackageProject.cmake
   GITHUB_REPOSITORY TheLartians/PackageProject.cmake
-  VERSION 1.2
+  VERSION 1.5.1
 )
 
 # ---- Add source files ----
-file(GLOB_RECURSE headers CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h")
+# Note: globbing sources is considered bad practice as CMake's generators may not detect new files
+# automatically. Keep that in mind when changing files, or explicitly mention them here.
+file(GLOB_RECURSE _headers CONFIGURE_DEPENDS
+     "${CMAKE_CURRENT_SOURCE_DIR}/include/*.h"
+)
 
 # ---- Create library ----
 
-add_library(ObserveHeaders EXCLUDE_FROM_ALL ${headers})
-set_target_properties(ObserveHeaders PROPERTIES LINKER_LANGUAGE CXX)
+# TODO: not used? CK
+# add_library(ObserveHeaders EXCLUDE_FROM_ALL ${_headers})
+# set_target_properties(ObserveHeaders PROPERTIES LINKER_LANGUAGE CXX)
 
 add_library(Observe INTERFACE)
-set_target_properties(Observe PROPERTIES INTERFACE_COMPILE_FEATURES cxx_std_17)
+target_compile_features(Observe INTERFACE cxx_std_17)
 
 # beeing a cross-platform target, we enforce enforce standards conformance on MSVC
-target_compile_options(Observe INTERFACE "$<$<BOOL:${MSVC}>:/permissive->")
+target_compile_options(
+  Observe INTERFACE "$<$<COMPILE_LANG_AND_ID:CXX,MSVC>:/permissive>"
+)
 
-target_include_directories(Observe
-  INTERFACE
-    $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>
-    $<INSTALL_INTERFACE:include/${PROJECT_NAME}-${PROJECT_VERSION}>
+target_include_directories(
+  Observe
+  INTERFACE "$<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/include>"
+            "$<INSTALL_INTERFACE:include/${PROJECT_NAME}-${PROJECT_VERSION}>"
 )
 
 # for run-clang-tidy
@@ -65,4 +76,3 @@ packageProject(
   INCLUDE_DESTINATION include/${PROJECT_NAME}-${PROJECT_VERSION}
   DEPENDENCIES ""
 )
-

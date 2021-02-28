@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5 FATAL_ERROR)
+cmake_minimum_required(VERSION 3.14...3.20)
 
 project(ObserveTests
   LANGUAGES CXX
@@ -16,7 +16,7 @@ include(../cmake/CPM.cmake)
 CPMAddPackage(
   NAME doctest
   GITHUB_REPOSITORY onqtam/doctest
-  GIT_TAG 2.3.7
+  GIT_TAG 2.4.5
 )
 
 if(TEST_INSTALLED_VERSION)
@@ -31,16 +31,15 @@ endif()
 CPMAddPackage(
   NAME Format.cmake
   GITHUB_REPOSITORY TheLartians/Format.cmake
-  VERSION 1.3
+  VERSION 1.6
 )
 
 # ---- Create binary ----
 
-file(GLOB sources CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/source/*.cpp)
-add_executable(ObserveTests ${sources})
+file(GLOB _sources CONFIGURE_DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/source/*.cpp)
+add_executable(ObserveTests ${_sources})
 target_link_libraries(ObserveTests doctest Observe)
-
-set_target_properties(ObserveTests PROPERTIES CXX_STANDARD 17)
+target_compile_features(ObserveTests INTERFACE cxx_std_17)
 
 # enable compiler warnings
 if(NOT TEST_INSTALLED_VERSION)
