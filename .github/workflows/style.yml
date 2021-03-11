@@ -12,10 +12,12 @@ jobs:
       - uses: actions/checkout@v1
 
       - name: Install clang-format
-        run: brew install clang-format
+        run: |
+          brew install clang-format
+          pip3 install cmake_format==0.6.13 pyyaml
 
       - name: configure
-        run: cmake -Htest -Bbuild
+        run: cmake -S test -B build
 
       - name: check style
         run: cmake --build build --target check-format
